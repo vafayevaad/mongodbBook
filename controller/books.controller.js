@@ -1,9 +1,23 @@
 const BooksSchema = require("../schema/book.schema");
 
-
 const getAllBooks = async (req, res) => {
   try {
-    const books = await BooksSchema.find();
+    const books = await BooksSchema.find().populate("author_info", "-_id -createdAt -updatedAt") 
+
+    res.status(200).json(books);
+  } catch (error) {
+    res.status(500).json({
+      message: error.message,
+    });
+  }
+};
+
+const search = async (req, res) => {
+  try {
+    const { searchingvalue } = req.query;
+    const books = await BooksSchema.find({
+      title: { $regex: searchingvalue, $options: "i" }
+    });
 
     res.status(200).json(books);
   } catch (error) {
@@ -15,13 +29,9 @@ const getAllBooks = async (req, res) => {
 
 const addBooks = async (req, res) => {
   try {
-    const { book_name, full_name, bio } =
-      req.body;
-
+    const { title, full_name, details, published_year, genres, period, pages, author_info } = req.body; 
     await BooksSchema.create({
-      book_name,
-      full_name,
-      bio
+      title, full_name, details, published_year, genres, period, pages, author_info
     });
 
     res.status(201).json({
@@ -57,8 +67,7 @@ const getOneBooks = async (req, res) => {
 const updateBooks = async (req, res) => {
   try {
     const { id } = req.params;
-    const { book_name, full_name, bio } =
-      req.body;
+    const { title, full_name, details, published_year, genres, period, pages, author_info } = req.body
 
     const foundedBooks = await BooksSchema.findById(id);
 
@@ -68,11 +77,8 @@ const updateBooks = async (req, res) => {
       });
     }
 
-    await BooksSchema.updateOne({_id: id}, {
-      book_name,
-      full_name,
-      bio
-    });
+    await BooksSchema.updateOne({ _id: id }, {
+      title, full_name, details, published_year, genres, period, pages, author_info })
 
     res.status(200).json({
       message: "Updated books",
@@ -88,7 +94,7 @@ const deleteBooks = async (req, res) => {
   try {
     const { id } = req.params;
 
-    const foundedBooks = await BooksSchema.findById(id);
+    const foundedBooks = await BooksSchema.findById(id)
 
     if (!foundedBooks) {
       return res.status(404).json({
@@ -96,7 +102,7 @@ const deleteBooks = async (req, res) => {
       });
     }
 
-    await BooksSchema.findByIdAndDelete({_id: id})
+    await BooksSchema.findByIdAndDelete(id)
 
     res.status(200).json({
       message: "Deleted books",
@@ -113,5 +119,6 @@ module.exports = {
   getOneBooks,
   addBooks,
   updateBooks,
-  deleteBooks
+  deleteBooks,
+  search
 };

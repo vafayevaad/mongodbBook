@@ -12,6 +12,21 @@ const getAllAuthors = async (req, res) => {
   }
 };
 
+const search = async (req, res) => {
+  try {
+    const { searchingvalue } = req.query
+    const authors = await AuthorSchema.find({
+      full_name: {$regex: searchingvalue, $options: "i"}
+    })
+
+    res.status(200).json(authors);
+  } catch (error) {
+    res.status(500).json({
+      message: error.message,
+    });
+  }
+};
+
 const addAuthor = async (req, res) => {
   try {
     const { full_name, birth_year, death_year, bio, period, work, region } =
@@ -121,4 +136,5 @@ module.exports = {
   addAuthor,
   updateAuthor,
   deleteAuthor,
+  search
 };
