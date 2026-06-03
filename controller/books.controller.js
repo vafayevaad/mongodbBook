@@ -1,4 +1,5 @@
 const BooksSchema = require("../schema/book.schema");
+const booksValidation = require("../validation/author.validation");
 
 const getAllBooks = async (req, res) => {
   try {
@@ -27,23 +28,6 @@ const search = async (req, res) => {
   }
 };
 
-const addBooks = async (req, res) => {
-  try {
-    const { title, full_name, details, published_year, genres, period, pages, author_info } = req.body; 
-    await BooksSchema.create({
-      title, full_name, details, published_year, genres, period, pages, author_info
-    });
-
-    res.status(201).json({
-      message: "Added new books",
-    });
-  } catch (error) {
-    res.status(500).json({
-      message: error.message,
-    });
-  }
-};
-
 const getOneBooks = async (req, res) => {
   try {
     const { id } = req.params;
@@ -64,29 +48,57 @@ const getOneBooks = async (req, res) => {
   }
 };
 
+const addBooks = async (req, res) => {
+  try {
+    const { error } = booksValidation(req.body);
+    if (error) {
+      return res.status(400).json({ message: error.message });
+    }
+
+    const { title, full_name, details, published_year, genres, period, pages, author_info } = req.body;
+    const image = req.file ? req.file.filename : null;
+
+    await BooksSchema.create({
+      title, full_name, details, published_year, genres, period, pages, author_info, image
+    });
+
+    res.status(201).json({ 
+      message: "Added new books" 
+    });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
 const updateBooks = async (req, res) => {
   try {
+    const { error } = booksValidation(req.body);
+    if (error) {
+      return res.status(400).json({ 
+        message: error.message 
+      });
+    }
+
     const { id } = req.params;
-    const { title, full_name, details, published_year, genres, period, pages, author_info } = req.body
+    const { title, full_name, details, published_year, genres, period, pages, author_info } = req.body;
+    const image = req.file ? req.file.filename : null;
 
     const foundedBooks = await BooksSchema.findById(id);
-
     if (!foundedBooks) {
-      return res.status(404).json({
-        message: "Books not found",
+      return res.status(404).json({ 
+        message: "Books not found" 
       });
     }
 
     await BooksSchema.updateOne({ _id: id }, {
-      title, full_name, details, published_year, genres, period, pages, author_info })
+      title, full_name, details, published_year, genres, period, pages, author_info, image
+    });
 
-    res.status(200).json({
-      message: "Updated books",
+    res.status(200).json({ 
+      message: "Updated books" 
     });
   } catch (error) {
-    res.status(500).json({
-      message: error.message,
-    });
+    res.status(500).json({ message: error.message });
   }
 };
 

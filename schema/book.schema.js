@@ -60,7 +60,11 @@ const Books = new Schema({
     type: Schema.Types.ObjectId,
     required: [true, "Muallif bo'lishi shart"],
     ref: "Author"
-  }
+  },
+  image: {
+    type: String,
+    default: null,   
+  },
 }, {
   versionKey: false,                      
   timestamps: true
