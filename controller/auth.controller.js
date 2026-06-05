@@ -1,53 +1,93 @@
+const CustomErrorHandler = require("../error/error");
 const UserSchema = require("../schema/user.schema");
-const bcrypt = require("bcryptjs");
-const jwt = require("jsonwebtoken");
+const sendEmail = require("../utils/email.sender");
+const bcrypt = require("bcryptjs")
+const jwt = require("jsonwebtoken")
+
 
 const register = async (req, res) => {
   try {
     const { username, email, password } = req.body;
+    const foundedUser = await UserSchema.findOne({where: {email}})
 
-    const User = await UserSchema.findOne({ email });
-    if (User) {
-      return res.status(400).json({ message: "User already exists" });
+    if (foundedUser) {
+      throw CustomErrorHandler.UnAuthorized("User already exists")
     }
+    const randomCode = Array.from({length: 6}, () => Math.floor(Math.random() * 9)).join("")
+    const dateNow = Date.now() + 120000
+    const hashPassword = await bcrypt.hash(password, 12);
+    await sendEmail(email, randomCode)
 
-    const hashPassword = await bcrypt.hash(password, 10);
-    await UserSchema.create({ username, email, password: hashPassword });
-
-    res.status(201).json({ message: "Registered successfully" });
+    await UserSchema.create({
+      username,
+      email, 
+      password: hashPassword,
+      otp: randomCode,
+      otpTime: dateNow
+    })
+    res.status(201).json({
+      message: "Registered"
+    })
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
 };
 
+const verify = async (req, res) => {
+  try {
+    const { email, code } = req.body
+    const foundedUser = await UserSchema.findOne({email})
+    if (!foundedUser) {
+      throw CustomErrorHandler.UnAuthorized("User not found")
+    }
+    if(foundedUser.otpTime < Date.now()) {
+      throw CustomErrorHandler.UnAuthorized("code expired")
+    }
+    if (foundedUser.otp !== code) {
+      throw CustomErrorHandler.UnAuthorized('Wrong code')
+    }
+    const payload = { id: foundedUser._id, email: foundedUser.email, role: foundedUser.role}
+    const token = jwt.sign(payload, process.env.SECRET_KEY, {expiresIn: "15d"})
+    await UserSchema.findByIdAndUpdate(foundedUser._id, {otp: "", otpTime: 0})
+    res.status(200).json({
+      message: "Success",
+      token
+    })
+  } catch (error) {
+    res.status(500).json({
+    message: error.message })
+}
+}
 const login = async (req, res) => {
   try {
     const { email, password } = req.body;
-
-    const user = await UserSchema.findOne({ email });
-    if (!user) {
-      return res.status(404).json({ message: "User not found" });
+    const foundedUser = await UserSchema.findOne({ email })
+    
+    if (!foundedUser) {
+      throw CustomErrorHandler.UnAuthorized("User not found")
+    }
+    
+    const decode = await bcrypt.compare(password, foundedUser.password)
+    
+    if (decode) {
+      const randomCode = Array.from({length: 6}, () => Math.floor(Math.random() * 9)).join("")
+      const dateNow = Date.now() + 120000
+      await sendEmail(email, randomCode)
+      await UserSchema.findByIdAndUpdate(foundedUser._id, {otp: randomCode, otpTime: dateNow})
+      res.status(200).json({
+        message: "Please check your email"
+      })
+    } else {
+      throw CustomErrorHandler.UnAuthorized("Wrong password")
     }
 
-    const isMatch = await bcrypt.compare(password, user.password);
-    if (!isMatch) {
-      return res.status(401).json({ message: "Wrong password" });
-    }
-
-    const payload = {
-      id: user._id,
-      email: user.email,
-      role: user.role,
-    };
-    const token = jwt.sign(payload, process.env.SECRET_KEY, { expiresIn: "5d" });
-
-    res.status(200).json({ message: "Login successful", token });
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
 };
 
-module.exports = { 
-  register, 
-  login 
+module.exports = {
+  register,
+  verify,
+  login,
 };

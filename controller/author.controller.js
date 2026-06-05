@@ -10,18 +10,20 @@ const getAllAuthors = async (req, res, next) => {
   } catch (error) {
     next(error)
   }
-};
+}
 
 const getOneAuthor = async (req, res, next) => {
   try {
     const { id } = req.params;
     const author = await AuthorSchema.findById(id);
-    if (!author) throw CustomErrorHandler.NotFound("Author not found");
+    if (!author) 
+      throw CustomErrorHandler.UnAuthorized("Author not found")
+    
     res.status(200).json(author);
   } catch (error) {
     next(error);
   }
-};
+}
 
 const search = async (req, res, next) => {
   try {
@@ -72,7 +74,7 @@ const updateAuthor = async (req, res, next) => {
     const image = req.file ? req.file.filename : null;  
 
     const author = await AuthorSchema.findById(id);
-    if (!author) throw CustomErrorHandler.NotFound("Author not found");
+    if (!author) throw CustomErrorHandler.UnAuthorized("Author not found");
 
     await AuthorSchema.updateOne({ _id: id }, { 
       full_name, birth_year, death_year, bio, period, work, region, image 
@@ -114,4 +116,4 @@ module.exports = {
   updateAuthor,
   deleteAuthor,
   search
-};
+}
