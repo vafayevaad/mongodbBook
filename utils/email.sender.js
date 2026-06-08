@@ -3,25 +3,19 @@ const CustomErrorHandler = require("../error/error")
 
 async function sendEmail(email, code) {
   try {
-    const testAccount = await nodemailer.createTestAccount()
-    
     const transporter = nodemailer.createTransport({
-      host: "smtp.ethereal.email",
-      port: 587,
+      service: "gmail",
       auth: {
-        user: testAccount.user,
-        pass: testAccount.pass
+        user: "dianavafoyeva220@gmail.com",
+        pass: process.env.GOOGLE_PASS
       }
     })
-    
-    const info = await transporter.sendMail({
+    await transporter.sendMail({
       subject: "DevBook",
       from: "dianavafoyeva220@gmail.com",
       to: email,
       html: `<b style="color: blue; font-size: 36px;">${code}</b>`
     })
-    
-    console.log("Preview URL: " + nodemailer.getTestMessageUrl(info))
   } catch (error) {
     throw CustomErrorHandler.BadRequest(error.message)
   }

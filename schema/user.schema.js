@@ -1,4 +1,3 @@
-const { string } = require("joi");
 const { Schema, model } = require("mongoose");
 
 const User = Schema(
@@ -9,7 +8,6 @@ const User = Schema(
       trim: true,
       minLength: [3, "Kamida 3 ta harf bo'lsin"],
       maxLength: [30, "Ko'pi bilan 30 ta harf bo'lsin"],
-      match: /^[a-zA-Z/s]+$/,
     },
     email: {
       type: String,
@@ -29,15 +27,14 @@ const User = Schema(
         values: ["user", "admin", "superAdmin"],
         message: "{VALUE} bunday role mavjud emas",
       },
+    },
     otp: {
       type: String,
       required: false
     },
     otpTime: {
-      type: BigInt,
+      type: Number,
       required: false
-    },
-      default: "user",
     },
   },
   {

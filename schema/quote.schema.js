@@ -8,14 +8,6 @@ const Quote = new Schema({
     minLength: [3, "Iqtibos kamida 3 ta harf bo'lsin"],
     maxLength: [1000, "Iqtibos ko'pi bilan 1000 ta harf bo'lsin"],
   },
-  page: {
-    type: Number,
-    required: false,
-    validate: {
-      validator: Number.isInteger,
-      message: "Sahifa raqami butun son bo'lishi kerak"
-    }
-  },
   book_info: {
     type: Schema.Types.ObjectId,
     required: [true, "Kitob bo'lishi shart"],
@@ -26,6 +18,10 @@ const Quote = new Schema({
     required: [true, "Foydalanuvchi bo'lishi shart"],
     ref: "User"
   },
+  likes: {
+    type: Schema.Types.ObjectId,
+    ref: "User"
+  }
 }, {
   versionKey: false,
   timestamps: true
