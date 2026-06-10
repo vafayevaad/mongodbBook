@@ -40,19 +40,21 @@ const search = async (req, res, next) => {
 
 const addAuthor = async (req, res, next) => {
   try {
-    const { error } = authorValidation(req.body);
-    if (error) {
-      return res.status(400).json({ 
-        message: error.message 
-      });
-    }
-
     const { full_name, birth_year, death_year, bio, period, work, region } = req.body;
-    const image = req.file ? req.file.filename : null;  
-
-    await AuthorSchema.create({ 
-      full_name, birth_year, death_year, bio, period, work, region, image
-    });
+    if(!req.file) {
+      throw CustomErrorHandler.BadRequest("file bo'lishi shart")
+    }
+    await AuthorSchema.create({
+      full_name, 
+      birth_year, 
+      death_year, 
+      bio, 
+      period, 
+      work, 
+      region,
+      picture: "http://localhost:4001/images/"+ req.file.filename
+    })
+    
     res.status(201).json({ 
       message: "Added new author" 
     });

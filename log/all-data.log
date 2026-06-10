@@ -1,0 +1,11 @@
+{"level":"warn","message":"Warn Logger"}
+{"level":"warn","message":"Warn Logger"}
+{"level":"error","message":"Error Logger"}
+{"level":"info","message":"Info Logger"}
+{"level":"warn","message":"Warn Logger"}
+{"level":"error","message":"Error Logger"}
+{"level":"info","message":"Info Logger"}
+{"level":"warn","message":"Warn Logger"}
+{"level":"error","message":"Error Logger"}
+{"level":"info","message":"Info Logger"}
+{"level":"debug","message":"Debug Logger"}

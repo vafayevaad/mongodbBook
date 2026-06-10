@@ -1,0 +1,30 @@
+{
+  message: 'Warn Logger',
+  level: 'warn',
+  timestamp: '2026-06-10T08:47:53.001Z'
+}
+{
+  message: 'Error Logger',
+  level: 'error',
+  timestamp: '2026-06-10T08:47:53.003Z'
+}
+{
+  message: 'Info Logger',
+  level: 'info',
+  timestamp: '2026-06-10T08:47:53.003Z'
+}
+{
+  message: 'Warn Logger',
+  level: 'warn',
+  timestamp: '2026-06-10T08:48:27.666Z'
+}
+{
+  message: 'Error Logger',
+  level: 'error',
+  timestamp: '2026-06-10T08:48:27.667Z'
+}
+{
+  message: 'Info Logger',
+  level: 'info',
+  timestamp: '2026-06-10T08:48:27.668Z'
+}

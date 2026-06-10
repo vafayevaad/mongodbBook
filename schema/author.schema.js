@@ -70,9 +70,9 @@ const Author = new Schema({
       message: "{VALUE} bunday viloyat mavjud emas"
     }
   },
-  image: {
+  picture: {
   type: String,
-  default: null,
+  required: true
 }
 }, {
   versionKey: false,
